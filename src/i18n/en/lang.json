@@ -1,0 +1,32 @@
+{
+    "welcome_message": "Getting welcome message successfully.",
+    "error_message": "An error occurred while processing the request.",
+    "mail_sent": "Mail sent successfully.",
+    "file_upload": "File upload successfully.",
+    "file_delete": "File deleted successfully.",
+    "date_checking": "Comman date function working successfully.",
+    "user": {
+        "list": "User list getting successfully."
+    },
+    "setting": {
+        "list": "Setting list getting successfully.",
+        "create": "Setting created successfully.",
+        "update": "Setting updated successfully.",
+        "single": "Setting getting successfully.",
+        "delete": "Setting deleted successfully."
+    },
+    "auth": {
+        "register": "User registration successfully.",
+        "login": "User Logedin successfully.",
+        "login_credential_faild": "invalid login and password",
+        "forget_password": "Password reset mail sent successfully.",
+        "email_not_found": "Email address is not found",
+        "reset_password": "Password reset successfully.",
+        "reset_password_fail": "Password reset failed. Please try again later or contact support for assistance.",
+        "change_password_success": "Your password has been changed successfully.",
+        "change_password_fail": "Failed to change password. Please try again",
+        "user_fetch": "User getting successfully.",
+        "company_email_exist": "Company email already exists",
+        "not_found": "User not found . Token is expier ."
+    }
+}
