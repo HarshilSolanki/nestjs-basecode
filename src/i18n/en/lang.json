@@ -16,8 +16,13 @@
         "delete": "Setting deleted successfully."
     },
     "auth": {
+        "tanant": {
+            "register": "Master user registration successfully.",
+            "login": "Master user logged in successfully.",
+            "not_found": "Tanant not found."
+        },
         "register": "User registration successfully.",
-        "login": "User Logedin successfully.",
+        "login": "User Logged in successfully.",
         "login_credential_faild": "invalid login and password",
         "forget_password": "Password reset mail sent successfully.",
         "email_not_found": "Email address is not found",

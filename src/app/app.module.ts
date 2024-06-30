@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { appConfig } from '../config/app.config';
@@ -14,20 +14,27 @@ import { DbContext } from 'src/utils/db-context.util';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SettingModule } from './setting/setting.module';
 import { connection } from 'mongoose';
+import { MongoDbConnection } from 'src/utils/mongo-db-connection.util';
+import { TenantMiddleware } from 'src/middleware/tenant.middleware';
 
 
 @Module({
     imports: [
         ConfigModule.forRoot(appConfig),
-        // TypeOrmModule.forRoot(databaseConfig),
-        MongooseModule.forRoot('mongodb://root:example@localhost:27017/nestjsmultitanant?authSource=admin'),
+        MongooseModule.forRoot('mongodb://root:example@localhost:27017/nestjsmultitanant?authSource=admin', {
+            autoIndex: false,
+            autoCreate: false,
+        }),
         I18nModule.forRoot(i18nConfig),
         SettingModule,
-        // AuthModule,
+        AuthModule,
         // UserModule
     ],
     controllers: [AppController],
-    // providers: [AppService, IsUniqueConstraint, DbContext],
-    providers: [AppService],
+    providers: [AppService, MongoDbConnection],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(TenantMiddleware).forRoutes('*');
+    }
+}

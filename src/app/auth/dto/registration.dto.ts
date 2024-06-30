@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
-import { isUnique } from 'src/decorators/is-unique.decorator';
+// import { isUnique } from 'src/decorators/is-unique.decorator';
 
-export class RegistertDTO {
+export class MasterUserRegistertDTO {
     @ApiProperty({ description: 'Enter user name', example: 'Jhon Doe', })
     @IsNotEmpty()
     @Length(0, 20)
@@ -11,7 +11,7 @@ export class RegistertDTO {
     @ApiProperty({ description: 'Enter user email address', example: 'jhon.doe@gmail.com', })
     @IsNotEmpty()
     @IsEmail()
-    @isUnique({ tableName: 'users', column: 'email' })
+    // @isUnique({ tableName: 'users', column: 'email' })
     @Length(0, 30)
     email: string;
 

@@ -7,17 +7,19 @@ import { AuthGuard } from './auth.guard';
 import { RoleGuard } from './role.guard';
 // import { User } from '../user/user.entity';
 import { jwtConfig } from 'src/config/jwt.config';
-import { Tanant } from '../user/tanant.entity';
+// import { Tanant } from '../user/tanant.entity';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '../user/user.schema';
+import { MasterUser, MasterUserSchema } from '../user/master-user.schema';
+import { Tanant, TanantSchema } from '../user/tanant.schema';
+import { TanantUser, TanantUserSchema } from '../user/tanant-user.schema';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([
-            User,
-            Tanant
+        MongooseModule.forFeature([
+            { name: TanantUser.name, schema: TanantUserSchema },
+            { name: MasterUser.name, schema: MasterUserSchema },
+            { name: Tanant.name, schema: TanantSchema }
         ]),
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
         jwtConfig
     ],
     controllers: [AuthController],
