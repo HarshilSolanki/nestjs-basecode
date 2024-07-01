@@ -5,7 +5,7 @@ import { PAGINATE } from 'src/config/constant.config';
 // import { MasterUser } from './user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { MasterUser, MasterUserDocument } from './master-user.schema';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { Tanant } from './tanant.schema';
 import { snake_case } from 'src/utils/string.util';
 import { MongoClient } from 'mongodb';
@@ -37,7 +37,7 @@ export class UserService {
     }
 
     async createDatabase(dbName: string): Promise<void> {
-        const uri = 'mongodb://root:example@localhost:27017/nestmongotanant?authSource=admin'; // Replace with your MongoDB connection string
+        const uri = 'mongodb://localhost:27017?authSource=admin'; // Replace with your MongoDB connection string
         const client = new MongoClient(uri);
 
         try {
@@ -63,6 +63,17 @@ export class UserService {
 
         const newMasterUser = new this.userModel({
             tanant_id: tanant._id,
+            name,
+            email,
+            phone,
+            password
+        });
+        return await newMasterUser.save();
+    }
+
+    async createAdminUser(name: string, email: string, phone: string, password: string): Promise<MasterUser> {
+        const newMasterUser = new this.userModel({
+            tanant_id: new Types.ObjectId(),
             name,
             email,
             phone,

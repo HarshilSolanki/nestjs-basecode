@@ -2,10 +2,8 @@ import { IsEnum, IsNumberString, IsOptional, IsString, ValidateIf } from 'class-
 import { ApiProperty } from '@nestjs/swagger';
 import * as crypto from 'crypto';
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
-import { sizeMap } from 'src/config/file.config';
 import { ENCRYPT_DECRYPT } from 'src/config/constant.config';
 import * as bcrypt from 'bcrypt';
-import { connectionEstablish } from './db-connection.util';
 
 export enum SortOrder {
     ASC = 'ASC',
@@ -59,22 +57,6 @@ export function decrypt(encryptedText: string): string {
     return decrypted;
 }
 
-@Injectable()
-export class FileValidationPipe implements PipeTransform {
-    async transform(file?: Express.Multer.File): Promise<Express.Multer.File> {
-        if (file) {
-            if (sizeMap[file.mimetype]) {
-                if (file.size > sizeMap[file.mimetype]) {
-                    throw new BadRequestException(`File size should be less than ${sizeMap[file.mimetype] / 1024 / 1024} MB`);
-                }
-            } else {
-                throw new BadRequestException('Invalid file type')
-            }
-        }
-        return file;
-    }
-}
-
 // Convert string boolean to boolean type
 @Injectable()
 export class ParseBoolFieldsPipe implements PipeTransform<any, any> {
@@ -86,15 +68,4 @@ export class ParseBoolFieldsPipe implements PipeTransform<any, any> {
         }
         return value;
     }
-}
-
-export async function executeSql(sql: string, dbName = process.env.DB_NAME): Promise<any> {
-    let connection = await connectionEstablish(dbName);
-    return await connection.query(sql);
-}
-
-export async function getDbNames(): Promise<any> {
-    let connection = await connectionEstablish(process.env.DB_NAME);
-    const dbNames = await connection.query('SELECT db_name FROM tanants');
-    return dbNames.map(tenant => tenant.db_name);
 }

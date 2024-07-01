@@ -9,9 +9,15 @@ export class UserSeeder {
     async seed() {
         let admin = await this.userService.findMasterUserByEmail('admin@test.com');
         if (!admin) {
-            await this.userService.createMasterUser(
+            await this.userService.createAdminUser(
                 'admin',
                 'admin@test.com',
+                '1111111111',
+                await bcryptPassword('Password@123'),
+            );
+            await this.userService.createMasterUser(
+                'user',
+                'user@test.com',
                 '1111111111',
                 await bcryptPassword('Password@123'),
             );
