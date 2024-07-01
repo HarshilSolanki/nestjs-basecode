@@ -20,9 +20,7 @@ export class AuthController {
     @ApiResponse({ status: _201, description: 'Master user registration successfully.' })
     async masterUserRegistration(@Body() masterUserRegistertDTO: MasterUserRegistertDTO, @I18n() i18n: I18nContext): Promise<PromiseResponse> {
         try {
-            console.log(['check1']);
             const user = await this.authService.masterUserRegistration(masterUserRegistertDTO);
-            console.log(['check2']);
             return successResponse(i18n.t(`lang.auth.tanant.register`), user);
         } catch (error) {
             errorResponse(error);

@@ -1,19 +1,13 @@
-import { Inject, Injectable, Query, Scope } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository, Like, Equal } from 'typeorm';
-import { PAGINATE } from 'src/config/constant.config';
-// import { MasterUser } from './user.entity';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { MasterUser, MasterUserDocument } from './master-user.schema';
-import mongoose, { Model, Types } from 'mongoose';
+import { MasterUser } from './master-user.schema';
+import { Model, Types } from 'mongoose';
 import { Tanant } from './tanant.schema';
 import { snake_case } from 'src/utils/string.util';
-import { MongoClient } from 'mongodb';
 import * as migrateMongo from 'migrate-mongo';
 import * as path from 'path';
 const config = require('../../../migrate-mongo-config');
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { createMongoConnection } from 'src/utils/mongo-tanant-connection.util';
 
 @Injectable()
 export class UserService {
@@ -37,11 +31,8 @@ export class UserService {
     }
 
     async createDatabase(dbName: string): Promise<void> {
-        const uri = 'mongodb://localhost:27017?authSource=admin'; // Replace with your MongoDB connection string
-        const client = new MongoClient(uri);
-
         try {
-            await client.connect();
+            const client = await createMongoConnection();
             const db = client.db(dbName);
             migrateMongo.config.set({
                 ...config,
@@ -52,8 +43,6 @@ export class UserService {
             console.log(`Database ${dbName} created successfully`);
         } catch (err) {
             console.error('Error creating database:', err);
-        } finally {
-            await client.close();
         }
     }
 

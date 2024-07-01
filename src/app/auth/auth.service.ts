@@ -8,11 +8,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { MasterUser } from '../user/master-user.schema';
 import { Tanant } from '../user/tanant.schema';
 import { Model } from 'mongoose';
-import { MongoClient } from 'mongodb';
 import * as migrateMongo from 'migrate-mongo';
 import * as path from 'path';
 import { TanantUserSchema } from '../user/tanant-user.schema';
-import { setTanantConnection } from 'src/utils/mongo-tanant-connection.util';
+import { createMongoConnection, setTanantConnection } from 'src/utils/mongo-tanant-connection.util';
 const config = require('../../../migrate-mongo-config');
 
 @Injectable({ scope: Scope.REQUEST })
@@ -40,11 +39,8 @@ export class AuthService {
     }
 
     async createDatabase(dbName: string): Promise<void> {
-        const uri = 'mongodb://localhost:27017?authSource=admin'; // Replace with your MongoDB connection string
-        const client = new MongoClient(uri);
-
         try {
-            await client.connect();
+            const client = await createMongoConnection();
             const db = client.db(dbName);
             migrateMongo.config.set({
                 ...config,
@@ -55,8 +51,6 @@ export class AuthService {
             console.log(`Database ${dbName} created successfully`);
         } catch (err) {
             console.error('Error creating database:', err);
-        } finally {
-            await client.close();
         }
     }
 
@@ -166,13 +160,13 @@ export class AuthService {
     }
 
     async deleteExistingDbs() {
-        const uri = 'mongodb://localhost:27017?authSource=admin';
-        const client = new MongoClient(uri);
         try {
             let dbs = [
-                'nestjsmultitanant',
+                'tanant_amit_1719854419491',
+                'tanant_jhon_doe_1719854296940',
+                'tanant_user_1719854263622',
             ];
-            await client.connect();
+            const client = await createMongoConnection();
             for (const dbNamee of dbs) {
                 const db = await client.db(dbNamee);
                 const result = await db.dropDatabase();
@@ -184,8 +178,6 @@ export class AuthService {
             }
         } catch (err) {
             console.error('Error creating database:', err);
-        } finally {
-            await client.close();
         }
     }
 

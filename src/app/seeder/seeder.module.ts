@@ -6,9 +6,10 @@ import { UserSeeder } from './user.seeder';
 
 @Module({
     imports: [
-        MongooseModule.forRoot('mongodb://root:example@localhost:27017/nestjsmultitanant?authSource=admin', {
+        MongooseModule.forRoot(`${process.env.MONGO_URL}/${process.env.DB_NAME}`, {
             autoIndex: false,
             autoCreate: false,
+            authSource: 'admin'
         }),
         UserModule,
     ],

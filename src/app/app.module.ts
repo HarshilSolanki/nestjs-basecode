@@ -14,9 +14,10 @@ import { MongoDbConnection } from 'src/utils/mongo-db-connection.util';
 @Module({
     imports: [
         ConfigModule.forRoot(appConfig),
-        MongooseModule.forRoot('mongodb://root:example@localhost:27017/nestjsmultitanant?authSource=admin', {
+        MongooseModule.forRoot(`${process.env.MONGO_URL}/${process.env.DB_NAME}`, {
             autoIndex: false,
             autoCreate: false,
+            authSource: 'admin'
         }),
         I18nModule.forRoot(i18nConfig),
         SettingModule,
