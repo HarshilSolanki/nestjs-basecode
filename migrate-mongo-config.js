@@ -7,7 +7,7 @@ module.exports = {
         // useUnifiedTopology: true,
       },
     },
-    migrationsDir: 'migrations',
+    migrationsDir: 'src/migrations',
     changelogCollectionName: 'migrations',
     migrationFileExtension: ".js",
     useFileHash: false,
