@@ -12,6 +12,7 @@ import * as migrateMongo from 'migrate-mongo';
 import * as path from 'path';
 import { TanantUserSchema } from '../user/tanant-user.schema';
 import { createMongoConnection, setTanantConnection } from 'src/utils/mongo-tanant-connection.util';
+import { date_moment } from 'src/utils/date.util';
 const config = require('../../../migrate-mongo-config');
 
 @Injectable({ scope: Scope.REQUEST })
@@ -38,6 +39,11 @@ export class AuthService {
         return await tanant.save();
     }
 
+    async existTanant(name): Promise<Tanant> {
+        const subdomain = await snake_case(name);
+        return await this.tanantModel.findOne({ subdomain: subdomain, is_active: true }).exec();
+    }
+
     async createDatabase(dbName: string): Promise<void> {
         try {
             const client = await createMongoConnection();
@@ -57,23 +63,13 @@ export class AuthService {
     async masterUserRegistration(masterUserRegistertDTO: MasterUserRegistertDTO): Promise<any> {
         let tanant = await this.createTanant(masterUserRegistertDTO.name);
         await this.createDatabase(tanant.db_name);
-        const newUser = new this.masterUserModel({
-            tanant_id: tanant._id,
-            name: masterUserRegistertDTO.name,
-            email: masterUserRegistertDTO.email,
-            phone: masterUserRegistertDTO.phone,
-            password: await bcryptPassword(masterUserRegistertDTO.password)
-        });
-        let data = await newUser.save();
+        let data = await this.tanantUserRegistration(masterUserRegistertDTO, tanant.db_name);
 
         return {
-            tanant_id: data.tanant_id,
+            ...data,
+            tanant_id: tanant._id,
             db_name: tanant.db_name,
             subdomain: tanant.subdomain,
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            id: data._id,
         };
     }
 
@@ -97,12 +93,11 @@ export class AuthService {
 
     async tanantUserRegistration(masterUserRegistertDTO: MasterUserRegistertDTO, db_name) {
         this.tanantUserModel = await setTanantConnection(db_name, 'User', TanantUserSchema);
-        console.log(['checking']);
         const user = new this.tanantUserModel({
             name: masterUserRegistertDTO.name,
             email: masterUserRegistertDTO.email,
             phone: masterUserRegistertDTO.phone,
-            password: await bcryptPassword(masterUserRegistertDTO.password),
+            password: await bcryptPassword('Password@123'),
             is_active: true
         });
         let result = await user.save();
@@ -159,6 +154,22 @@ export class AuthService {
         return await this.tanantModel.findOne({ _id: id }).exec();
     }
 
+    async getTanantBySubdomain(subdomain: string, isActive: boolean = false): Promise<Tanant | null> {
+        const fields: any = { subdomain: subdomain, deleted_at: null };
+        if (isActive) {
+            fields['is_active'] = true;
+        }
+        return await this.tanantModel.findOne(fields).exec();
+    }
+
+    async deleteTanant(subdomain: string): Promise<Tanant | null> {
+        return await this.tanantModel.findOneAndUpdate(
+            { subdomain: subdomain, deleted_at: null },
+            { deleted_at: date_moment() },
+            { new: true }
+        ).exec();
+    }
+
     async deleteExistingDbs() {
         try {
             let dbs = [
@@ -179,6 +190,10 @@ export class AuthService {
         } catch (err) {
             console.error('Error creating database:', err);
         }
+    }
+
+    async updateTanantStatus(subdomain: string, isActive: boolean): Promise<Tanant | null> {
+        return this.tanantModel.findOneAndUpdate({ subdomain }, { is_active: isActive }, { new: true });
     }
 
 }

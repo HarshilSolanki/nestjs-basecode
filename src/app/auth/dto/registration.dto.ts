@@ -20,11 +20,11 @@ export class MasterUserRegistertDTO {
     @Length(0, 15)
     phone: string;
 
-    @ApiProperty({ description: 'Enter user password', example: 'Password@123', })
-    @IsNotEmpty()
-    @Length(8, 24)
-    @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-        message: 'password too weak',
-    })
-    password: string;
+    // @ApiProperty({ description: 'Enter user password', example: 'Password@123', })
+    // @IsNotEmpty()
+    // @Length(8, 24)
+    // @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    //     message: 'password too weak',
+    // })
+    // password: string;
 }

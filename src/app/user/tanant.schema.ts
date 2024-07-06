@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Document } from 'mongoose';
+import { Date, Document } from 'mongoose';
 
 @Schema({ collection: 'tanants' })
 export class Tanant extends Document {
@@ -19,6 +19,10 @@ export class Tanant extends Document {
     @ApiProperty()
     @Prop({ required: true, default: true })
     is_active: boolean;
+
+    @ApiProperty()
+    @Prop({ type: Date, default: null })
+    deleted_at: Date;
 }
 
 

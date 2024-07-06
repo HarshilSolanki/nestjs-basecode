@@ -19,7 +19,10 @@
         "tanant": {
             "register": "Master user registration successfully.",
             "login": "Master user logged in successfully.",
-            "not_found": "Tanant not found."
+            "not_found": "Tanant not found.",
+            "status_updated": "Tanant status updated successfully.",
+            "deleted": "Tanant deleted successfully.",
+            "exist": "Tanant already exist."
         },
         "register": "User registration successfully.",
         "login": "User Logged in successfully.",
