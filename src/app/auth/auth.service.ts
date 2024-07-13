@@ -114,7 +114,7 @@ export class AuthService {
         this.tanantUserModel = await setTanantConnection(db_name, 'User', TanantUserSchema);
         const user = await this.tanantUserModel.findOne({ email: loginDto.email, is_active: true }).exec();
         if (user && await bcryptComparePassword(loginDto.password, user.password)) {
-            const token = await this.generateToken(user);
+            const token = await this.generateToken(user, db_name);
             return {
                 id: user._id,
                 tanant_id: user.tanant_id,
@@ -128,10 +128,11 @@ export class AuthService {
         return false;
     }
 
-    async generateToken(user): Promise<string> {
+    async generateToken(user, db_name = ''): Promise<string> {
         const payload = {
             id: user.id,
             tanant_id: user.tanant_id,
+            db_name: db_name,
             name: user.name,
             email: user.email,
             phone: user.phone,

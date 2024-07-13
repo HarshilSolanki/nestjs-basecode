@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SettingModule } from './setting/setting.module';
 import { MongoDbConnection } from 'src/utils/mongo-db-connection.util';
+import { RolePermissionModule } from './role-permission/role-permission.module';
 
 
 @Module({
@@ -22,6 +23,7 @@ import { MongoDbConnection } from 'src/utils/mongo-db-connection.util';
         I18nModule.forRoot(i18nConfig),
         SettingModule,
         AuthModule,
+        RolePermissionModule,
     ],
     controllers: [AppController],
     providers: [AppService, MongoDbConnection],

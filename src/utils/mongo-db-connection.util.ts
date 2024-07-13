@@ -11,6 +11,7 @@ const config = require(path.join(__dirname, '../../migrate-mongo-config'));
 export class MongoDbConnection implements OnApplicationBootstrap {
     private db: Db;
     private client: MongoClient;
+    private dbs;
 
     private async connectToDatabase(tanant) {
         const client = new MongoClient(config.mongodb.url, config.mongodb.options);
@@ -45,7 +46,7 @@ export class MongoDbConnection implements OnApplicationBootstrap {
             const tanants = await collection.find({ is_active: true }).toArray();
             return tanants.map(tanant => tanant.db_name);
         } catch (error) {
-            console.error('Error retrieving pending migrations:', error);
+            console.error('Error retrieving getting tanants:', error);
             throw error;
         }
     }
@@ -53,13 +54,14 @@ export class MongoDbConnection implements OnApplicationBootstrap {
     async executePendingTanantMigrations() {
         try {
             let tanants = await this.getTanants();
+            this.dbs = tanants;
             const migrationsDir = path.join(__dirname, '..', 'migrations', 'tanants');
             tanants.forEach(async tanant => {
                 await this.executePendingMigrations(tanant, migrationsDir);
             });
             return true;
         } catch (error) {
-            console.error('Error retrieving pending migrations:', error);
+            console.error('Error retrieving pending tanant migrations:', error);
             throw error;
         }
     }
@@ -69,9 +71,12 @@ export class MongoDbConnection implements OnApplicationBootstrap {
             let app = await NestFactory.createApplicationContext(SeederModule);
             const seeder = app.get(SeederService);
             await seeder.seed();
+            this.dbs.forEach(async tanant => {
+                await seeder.tanantSeed(tanant);
+            });
             await app.close();
         } catch (error) {
-            console.error('Error retrieving pending migrations:', error);
+            console.error('Error retrieving pending seeder:', error);
             throw error;
         }
     }
