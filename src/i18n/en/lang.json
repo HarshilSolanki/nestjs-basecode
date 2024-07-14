@@ -27,6 +27,10 @@
                 "list": "Roles getting successfully.",
                 "create": "Role created successfully.",
                 "exist": "Role already exist."
+            },
+            "permission": {
+                "list": "Permissions getting successfully.",
+                "exist": "Permission already exist."
             }
         },
         "register": "User registration successfully.",

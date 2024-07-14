@@ -5,6 +5,7 @@ import { SeederService } from './seeder.service';
 import { UserSeeder } from './user.seeder';
 import { RoleSeeder } from './role.seeder';
 import { RolePermissionModule } from '../role-permission/role-permission.module';
+import { PermissionSeeder } from './permission.seeder';
 
 @Module({
     imports: [
@@ -16,6 +17,6 @@ import { RolePermissionModule } from '../role-permission/role-permission.module'
         UserModule,
         RolePermissionModule,
     ],
-    providers: [SeederService, UserSeeder, RoleSeeder],
+    providers: [SeederService, UserSeeder, RoleSeeder, PermissionSeeder],
 })
 export class SeederModule { }

@@ -40,4 +40,16 @@ export class RolePermissionController {
             errorResponse(error);
         }
     }
+
+    @Get('tanant/permission/list')
+    @ApiResponse({ status: _200, description: 'Permissions getting successfully.' })
+    async tanantPermissions(@Request() req, @I18n() i18n: I18nContext): Promise<PromiseResponse> {
+        try {
+            let db_name =  req.user.db_name;
+            const permissions = await this.rolePermissionService.getTanantPermissions(db_name);
+            return successResponse(i18n.t(`lang.auth.tanant.permission.list`), permissions);
+        } catch (error) {
+            errorResponse(error);
+        }
+    }
 }
