@@ -95,3 +95,9 @@ export class MongoDbConnection implements OnApplicationBootstrap {
         }
     }
 }
+
+export async function executeSeeder(tanant) {
+    let app = await NestFactory.createApplicationContext(SeederModule);
+    const seeder = app.get(SeederService);
+    await seeder.tanantSeed(tanant);
+}

@@ -28,6 +28,10 @@
                 "create": "Role created successfully.",
                 "exist": "Role already exist."
             },
+            "user": {
+                "create": "User assign to role successfully.",
+                "asign": "User role already assigned."
+            },
             "permission": {
                 "list": "Permissions getting successfully.",
                 "exist": "Permission already exist."

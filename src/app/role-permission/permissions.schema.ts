@@ -13,3 +13,5 @@ export class Permission {
 }
 
 export const PermissionSchema = SchemaFactory.createForClass(Permission);
+PermissionSchema.set('toJSON', { getters: true });
+PermissionSchema.set('toObject', { getters: true });

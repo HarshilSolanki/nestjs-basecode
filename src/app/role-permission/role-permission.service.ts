@@ -4,6 +4,7 @@ import { setTanantConnection } from 'src/utils/mongo-tanant-connection.util';
 import { RoleSchema } from './roles.schema';
 import { PermissionSchema } from './permissions.schema';
 import { RolePermissionSchema } from './role_permissions.schema';
+import { UserRoleSchema } from './user_role.schema';
 
 // @Injectable({ scope: Scope.REQUEST })
 @Injectable()
@@ -11,6 +12,7 @@ export class RolePermissionService {
     public tanantRoleModel: Model<any>;
     public tanantPermissionModel: Model<any>;
     public rolePermissionModel: Model<any>;
+    public userRoleModel: Model<any>;
 
     // constructor(
     //     // @InjectModel(MasterUser.name) private masterUserModel: Model<MasterUser>,
@@ -35,9 +37,8 @@ export class RolePermissionService {
             name: roleName,
         });
         let result = await role.save();
-
         return {
-            id: result._id,
+            id: result.id,
             name: result.name,
             is_active: result.is_active,
         };
@@ -68,7 +69,7 @@ export class RolePermissionService {
         let result = await permission.save();
 
         return {
-            id: result._id,
+            id: result.id,
             name: result.name,
             is_active: result.is_active,
         };
@@ -92,6 +93,31 @@ export class RolePermissionService {
             role_id: result.role_id,
             permission_id: result.permission_id,
         };
+    }
+
+    async getAssignRolePermission(permissionId, RoleId, db_name) {
+        this.rolePermissionModel = await setTanantConnection(db_name, 'RolePermission', RolePermissionSchema);
+        return await this.rolePermissionModel.findOne({ role_id: RoleId, permission_id: permissionId }).exec();
+    }
+
+    async assignUserRole(userId, RoleId, db_name) {
+        this.userRoleModel = await setTanantConnection(db_name, 'UserRole', UserRoleSchema);
+        const rolePermission = new this.userRoleModel({
+            user_id: userId,
+            role_id: RoleId,
+        });
+        let result = await rolePermission.save();
+
+        return {
+            id: result._id,
+            user_id: result.user_id,
+            role_id: result.role_id,
+        };
+    }
+
+    async getAssignUserRole(userId, RoleId, db_name) {
+        this.userRoleModel = await setTanantConnection(db_name, 'UserRole', UserRoleSchema);
+        return await this.userRoleModel.findOne({ user_id: userId, role_id: RoleId }).exec();
     }
 
 }

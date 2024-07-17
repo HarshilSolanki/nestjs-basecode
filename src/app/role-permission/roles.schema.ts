@@ -13,3 +13,5 @@ export class Role {
 }
 
 export const RoleSchema = SchemaFactory.createForClass(Role);
+RoleSchema.set('toJSON', { getters: true });
+RoleSchema.set('toObject', { getters: true });

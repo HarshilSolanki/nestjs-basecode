@@ -15,7 +15,7 @@ export class UserSeeder {
                 '1111111111',
                 await bcryptPassword('Password@123'),
             );
-            await this.userService.createMasterUser(
+            await this.userService.createTanantDbAndUser(
                 'user',
                 'user@test.com',
                 '1111111111',

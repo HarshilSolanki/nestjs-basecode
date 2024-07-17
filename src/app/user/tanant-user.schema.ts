@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type TanantUserDocument = TanantUser & Document;
 
@@ -37,3 +37,6 @@ export class TanantUser {
 }
 
 export const TanantUserSchema = SchemaFactory.createForClass(TanantUser);
+TanantUserSchema.set('toJSON', { getters: true });
+TanantUserSchema.set('toObject', { getters: true });
+
