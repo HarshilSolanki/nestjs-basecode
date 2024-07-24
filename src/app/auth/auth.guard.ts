@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { IS_PUBLIC_KEY } from 'src/decorators/public.decorator';
+import { setTanantDbName } from 'src/utils/helper';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,6 +25,7 @@ export class AuthGuard implements CanActivate {
             const payload = await this.jwtService.verifyAsync(token, {
                 secret: process.env.SECRET_KEY,
             });
+            await setTanantDbName(payload.db_name);
             request['user'] = payload;
         } catch {
             throw new UnauthorizedException();

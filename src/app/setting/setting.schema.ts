@@ -13,3 +13,5 @@ export class Setting {
 }
 
 export const SettingSchema = SchemaFactory.createForClass(Setting);
+SettingSchema.set('toJSON', { getters: true });
+SettingSchema.set('toObject', { getters: true });

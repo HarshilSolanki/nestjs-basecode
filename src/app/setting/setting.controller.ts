@@ -1,21 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request } from '@nestjs/common';
 import { SettingService } from './setting.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { _200, _201 } from 'src/utils/http-code.util';
 import { PromiseResponse, errorResponse, successResponse } from 'src/utils/response.util';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { ListUserQuery } from '../user/dto/list-user-query.dto';
-import { Public } from 'src/decorators/public.decorator';
+import { Permission } from 'src/decorators/permission.decorator';
 
 @ApiTags('Setting')
 @Controller('setting')
+@ApiBearerAuth()
 export class SettingController {
     constructor(private readonly settingService: SettingService) { }
 
-    @Public()
     @Post()
+    @Permission('setting.create')
     @ApiResponse({ status: _201, description: 'Setting created successfully.' })
     async create(@Body() createSettingDto: CreateSettingDto, @I18n() i18n: I18nContext): Promise<PromiseResponse> {
         try {
@@ -27,6 +28,7 @@ export class SettingController {
     }
 
     @Get()
+    @Permission('setting.list')
     @ApiResponse({ status: _200, description: 'Setting list getting successfully.' })
     async findAll(@Query() queryParams: ListUserQuery, @I18n() i18n: I18nContext): PromiseResponse {
         try {
@@ -38,6 +40,7 @@ export class SettingController {
     }
 
     @Get(':id')
+    @Permission('setting.view')
     @ApiResponse({ status: _200, description: 'Setting getting successfully.' })
     async findOne(@Param('id') id: string, @I18n() i18n: I18nContext): PromiseResponse {
         try {
@@ -49,6 +52,7 @@ export class SettingController {
     }
 
     @Put(':id')
+    @Permission('setting.edit')
     @ApiResponse({ status: _200, description: 'Setting updated successfully.' })
     async update(@Param('id') id: string, @Body() updateSettingDto: UpdateSettingDto, @I18n() i18n: I18nContext): PromiseResponse {
         try {
@@ -60,6 +64,7 @@ export class SettingController {
     }
 
     @Delete(':id')
+    @Permission('setting.delete')
     @ApiResponse({ status: _200, description: 'Setting deleted successfully.' })
     async remove(@Param('id') id: string, @I18n() i18n: I18nContext): PromiseResponse {
         try {

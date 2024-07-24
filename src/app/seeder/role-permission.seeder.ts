@@ -8,19 +8,23 @@ export class RolePermissionSeeder {
     async tanantSeed(db_name: string) {
         const roles = ['super-admin', 'admin'];
         const allPermissions = [
+            'role.list',
+            'role.view',
             'role.create',
             'role.edit',
-            'role.view',
             'role.delete',
             'role.assign',
             'setting.create',
             'setting.edit',
+            'setting.list',
             'setting.view',
             'setting.delete',
             'user.create',
             'user.edit',
             'user.view',
             'user.delete',
+            'permission.list',
+            'permission.assign',
         ];
 
         const adminPermissions = [

@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MasterUser, MasterUserSchema } from '../user/master-user.schema';
 import { Tanant, TanantSchema } from '../user/tanant.schema';
 import { TanantUser, TanantUserSchema } from '../user/tanant-user.schema';
+import { PermissionsGuard } from './permission.guard';
 
 @Module({
     imports: [
@@ -24,6 +25,10 @@ import { TanantUser, TanantUserSchema } from '../user/tanant-user.schema';
         {
             provide: APP_GUARD,
             useClass: AuthGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: PermissionsGuard,
         },
     ],
     exports: [AuthService],

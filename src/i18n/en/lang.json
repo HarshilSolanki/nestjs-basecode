@@ -26,6 +26,8 @@
             "role": {
                 "list": "Roles getting successfully.",
                 "create": "Role created successfully.",
+                "update": "Role updated successfully.",
+                "delete": "Role deleted successfully.",
                 "exist": "Role already exist."
             },
             "user": {

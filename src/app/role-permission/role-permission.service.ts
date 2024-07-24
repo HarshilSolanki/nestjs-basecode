@@ -1,10 +1,11 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { setTanantConnection } from 'src/utils/mongo-tanant-connection.util';
 import { RoleSchema } from './roles.schema';
 import { PermissionSchema } from './permissions.schema';
 import { RolePermissionSchema } from './role_permissions.schema';
 import { UserRoleSchema } from './user_role.schema';
+import { UpdateRoleDTO } from './update-role.dto';
 
 // @Injectable({ scope: Scope.REQUEST })
 @Injectable()
@@ -31,6 +32,15 @@ export class RolePermissionService {
         });
     }
 
+    async tanantRoleUpdate(db_name: string, updateRoleDTO: UpdateRoleDTO) {
+        this.tanantRoleModel = await setTanantConnection(db_name, 'Role', RoleSchema);
+        let role = await this.tanantRoleModel.findOne({ _id: updateRoleDTO.id }).exec();
+        if (!role) {
+            throw new NotFoundException('Role not found.');
+        }
+        return await this.tanantRoleModel.findByIdAndUpdate(updateRoleDTO.id, updateRoleDTO, { new: true }).exec();
+    }
+
     async tanantRoleCreate(roleName, db_name) {
         this.tanantRoleModel = await setTanantConnection(db_name, 'Role', RoleSchema);
         const role = new this.tanantRoleModel({
@@ -42,6 +52,15 @@ export class RolePermissionService {
             name: result.name,
             is_active: result.is_active,
         };
+    }
+
+    async tanantRoleDelete(db_name, id: string) {
+        this.tanantRoleModel = await setTanantConnection(db_name, 'Role', RoleSchema);
+        let role = await this.tanantRoleModel.findOne({ _id: id }).exec();
+        if (!role) {
+            throw new NotFoundException('Role not found.');
+        }
+        return await this.tanantRoleModel.findByIdAndDelete(id).exec();
     }
 
     async getTanantRole(roleName, db_name) {

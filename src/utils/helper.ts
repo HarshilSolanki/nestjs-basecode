@@ -4,6 +4,7 @@ import * as crypto from 'crypto';
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { ENCRYPT_DECRYPT } from 'src/config/constant.config';
 import * as bcrypt from 'bcrypt';
+export const requestContext = new Map<string, any>();
 
 export enum SortOrder {
     ASC = 'ASC',
@@ -68,4 +69,12 @@ export class ParseBoolFieldsPipe implements PipeTransform<any, any> {
         }
         return value;
     }
+}
+
+export async function setTanantDbName(value) {
+    requestContext.set('tdbname', value);
+}
+
+export async function getTanantDbName() {
+    return requestContext.get('tdbname');
 }

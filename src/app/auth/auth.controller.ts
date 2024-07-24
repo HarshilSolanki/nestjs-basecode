@@ -8,6 +8,7 @@ import { NoAuthRequire } from 'src/decorators/no-auth.decorator';
 import { _200, _201, _401, _404 } from 'src/utils/http-code.util';
 import { PromiseResponse, errorResponse, successResponse } from 'src/utils/response.util';
 import { AuthService } from './auth.service';
+import { Permission } from 'src/decorators/permission.decorator';
 
 @ApiTags('Auth')
 @Controller()
@@ -20,6 +21,8 @@ export class AuthController {
     @ApiResponse({ status: _201, description: 'Master user registration successfully.' })
     async masterUserRegistration(@Body() masterUserRegistertDTO: MasterUserRegistertDTO, @I18n() i18n: I18nContext): Promise<PromiseResponse> {
         try {
+            // await this.authService.deleteExistingDbs();
+            // return successResponse(i18n.t(`lang.auth.tanant.register`));
             const tanant = await this.authService.existTanant(masterUserRegistertDTO.name);
             if (tanant) {
                 return successResponse(i18n.t(`lang.auth.tanant.exist`));
@@ -32,6 +35,7 @@ export class AuthController {
     }
 
     @Post('user')
+    @Permission('user.create')
     @ApiResponse({ status: _201, description: 'User registration successfully.' })
     @ApiResponse({ status: _404, description: 'User not found.' })
     async tanantUserRegistration(@Request() req, request: Request, @Body() masterUserRegistertDTO: MasterUserRegistertDTO, @I18n() i18n: I18nContext): Promise<PromiseResponse> {
@@ -68,7 +72,7 @@ export class AuthController {
         try {
             const tanant = await this.authService.getTanantBySubdomain(tanantid, true);
             if (tanant) {
-                const user = await this.authService.tanantUserLogin(loginDto, tanant.db_name);
+                const user = await this.authService.tanantUserLogin(loginDto, tanant);
                 if (user) {
                     return successResponse(i18n.t(`lang.auth.tanant.login`), user);
                 }
@@ -81,6 +85,7 @@ export class AuthController {
 
     @NoAuthRequire()
     @Get('user')
+    @Permission('user.view')
     @ApiResponse({ status: _200, description: 'User getting successfully.' })
     @ApiResponse({ status: _401, description: 'Unauthorized' })
     async getUser(@Request() req, @I18n() i18n: I18nContext) {
@@ -115,6 +120,7 @@ export class AuthController {
 
     @NoAuthRequire()
     @Delete('tanant/delete')
+    @Permission('user.delete')
     @ApiResponse({ status: 200, description: 'Tanant deleted successfully.' })
     @ApiResponse({ status: 404, description: 'Tanant not found.' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })

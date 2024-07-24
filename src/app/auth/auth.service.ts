@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { HttpException, Injectable, Scope } from '@nestjs/common';
 import { MasterUserRegistertDTO } from './dto/registration.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
@@ -17,6 +17,8 @@ import { executeSeeder } from 'src/utils/mongo-db-connection.util';
 import { UserRoleSchema } from '../role-permission/user_role.schema';
 import { RoleSchema } from '../role-permission/roles.schema';
 import { RolePermissionSchema } from '../role-permission/role_permissions.schema';
+import { PermissionSchema } from '../role-permission/permissions.schema';
+import { _404 } from 'src/utils/http-code.util';
 const config = require('../../../migrate-mongo-config');
 
 @Injectable({ scope: Scope.REQUEST })
@@ -25,6 +27,7 @@ export class AuthService {
     public userRoleModel: Model<any>;
     public roleModel: Model<any>;
     public rolePermissionModel: Model<any>;
+    public tanantPermissionModel: Model<any>;
 
     constructor(
         private readonly jwtService: JwtService,
@@ -73,7 +76,8 @@ export class AuthService {
         let tanant = await this.createTanant(masterUserRegistertDTO.name);
         await this.createDatabase(tanant.db_name);
         let data = await this.tanantUserRegistration(masterUserRegistertDTO, tanant.db_name);
-
+        let role = await this.getTanantRole('super-admin', tanant.db_name);
+        await this.assignUserRole(data.id, role.id, tanant.db_name);
         return {
             ...data,
             tanant_id: tanant._id,
@@ -86,14 +90,17 @@ export class AuthService {
         const user = await this.masterUserModel.findOne({ email: loginDto.email, is_active: true }).exec();
 
         if (user && await bcryptComparePassword(loginDto.password, user.password)) {
-            const token = await this.generateToken(user);
-            return {
+            let data = {
                 id: user._id,
                 tanant_id: user.tanant_id,
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
                 is_active: user.is_active,
+            }
+            const token = await this.generateToken(data);
+            return {
+                ...data,
                 token: token,
             };
         }
@@ -115,53 +122,59 @@ export class AuthService {
             email: result.email,
             phone: result.phone,
             is_active: result.is_active,
-            id: result._id,
+            id: result.id,
         };
     }
 
-    async tanantUserLogin(loginDto: LoginDto, db_name): Promise<object | boolean> {
+    async tanantUserLogin(loginDto: LoginDto, tanant): Promise<object | boolean> {
+        let db_name = tanant.db_name;
         this.tanantUserModel = await setTanantConnection(db_name, 'User', TanantUserSchema);
         const user = await this.tanantUserModel.findOne({ email: loginDto.email, is_active: true }).exec();
         if (user && await bcryptComparePassword(loginDto.password, user.password)) {
-            const token = await this.generateToken(user, db_name);
             this.userRoleModel = await setTanantConnection(db_name, 'UserRole', UserRoleSchema);
             const userRole = await this.userRoleModel
                 .findOne({ user_id: user.id })
                 .exec();
             if (!userRole) {
-                return null;
+                throw new HttpException({ success: false, message: 'Role not assign.' }, _404);
             }
             this.roleModel = await setTanantConnection(db_name, 'Role', RoleSchema);
             const role = await this.roleModel.findOne({ _id: userRole.role_id }).exec();
             let permissions = await this.getRolePermissions(role.id, db_name);
-            console.log(['user', user]);
-            console.log(['role',role, permissions]);
+            let permissionIds = await permissions.map((permission) => {
+                return permission.permission_id;
+            })
+            let rolePermission = await this.getUserRolePermissions(db_name, permissionIds);
+            let rolePermissionArray = rolePermission.map((permission) => {
+                return permission.name;
+            });
 
-            return {
-                id: user._id,
-                tanant_id: user.tanant_id,
+            const data = {
+                id: user.id,
+                tanant_id: tanant ? tanant.id : user.tanant_id,
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
                 is_active: user.is_active,
                 role_name: role.name,
-                token: token,
+                permissions: rolePermission,
             };
+            const token = await this.generateToken(data, rolePermissionArray, tanant);
+
+            return {
+                ...data,
+                token: token,
+            }
         }
         return false;
     }
 
-    async generateToken(user, db_name = ''): Promise<string> {
-        const payload = {
-            id: user.id,
-            tanant_id: user.tanant_id,
-            db_name: db_name,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            is_active: user.is_active,
-        };
-        return this.jwtService.signAsync(payload);
+    async generateToken(payload, permissions = [], tanant = null): Promise<string> {
+        return this.jwtService.signAsync({
+            ...payload,
+            db_name: tanant ? tanant.db_name : null,
+            permissions: permissions
+        });
     }
 
     async getUserByEmail(email: string): Promise<MasterUser | null> {
@@ -223,6 +236,38 @@ export class AuthService {
     async getRolePermissions(RoleId, db_name) {
         this.rolePermissionModel = await setTanantConnection(db_name, 'RolePermission', RolePermissionSchema);
         return await this.rolePermissionModel.find({ role_id: RoleId }).exec();
+    }
+
+    async getUserRolePermissions(db_name, ids) {
+        this.tanantPermissionModel = await setTanantConnection(db_name, 'Permission', PermissionSchema);
+        const permissions = await this.tanantPermissionModel.find({ is_active: true, _id: ids }).exec();
+        return permissions.map((permission) => {
+            return {
+                'id': permission._id,
+                'name': permission.name,
+                'is_active': permission.is_active,
+            }
+        });
+    }
+
+    async getTanantRole(roleName, db_name) {
+        this.roleModel = await setTanantConnection(db_name, 'Role', RoleSchema);
+        return await this.roleModel.findOne({ name: roleName }).exec();
+    }
+
+    async assignUserRole(userId, RoleId, db_name) {
+        this.userRoleModel = await setTanantConnection(db_name, 'UserRole', UserRoleSchema);
+        const rolePermission = new this.userRoleModel({
+            user_id: userId,
+            role_id: RoleId,
+        });
+        let result = await rolePermission.save();
+
+        return {
+            id: result._id,
+            user_id: result.user_id,
+            role_id: result.role_id,
+        };
     }
 
 }
