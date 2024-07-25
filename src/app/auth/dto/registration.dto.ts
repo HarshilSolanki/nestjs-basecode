@@ -3,12 +3,12 @@ import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
 // import { isUnique } from 'src/decorators/is-unique.decorator';
 
 export class MasterUserRegistertDTO {
-    @ApiProperty({ description: 'Enter user name', example: 'Jhon Doe', })
+    @ApiProperty({ description: 'Enter user name', example: 'Amit', })
     @IsNotEmpty()
     @Length(0, 20)
     name: string;
 
-    @ApiProperty({ description: 'Enter user email address', example: 'jhon.doe@gmail.com', })
+    @ApiProperty({ description: 'Enter user email address', example: 'amit@test.com', })
     @IsNotEmpty()
     @IsEmail()
     // @isUnique({ tableName: 'users', column: 'email' })

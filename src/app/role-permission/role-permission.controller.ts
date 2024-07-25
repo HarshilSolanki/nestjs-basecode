@@ -93,11 +93,7 @@ export class RolePermissionController {
     async assignRolePermission(@Request() req, @Body() createPermissionAssignDTO: CreatePermissionAssignDTO, @I18n() i18n: I18nContext): Promise<PromiseResponse> {
         try {
             let db_name = req.user.db_name;
-            const assignPermissionExist = await this.rolePermissionService.getAssignRolePermission(createPermissionAssignDTO.permission_id, createPermissionAssignDTO.role_id, db_name);
-            if (assignPermissionExist) {
-                throw new BadRequestException(i18n.t(`lang.auth.tanant.role.exist`));
-            }
-            await this.rolePermissionService.assignRolePermission(createPermissionAssignDTO.permission_id, createPermissionAssignDTO.role_id, db_name);
+            await this.rolePermissionService.assignRolePermissions(createPermissionAssignDTO.permission_ids, createPermissionAssignDTO.role_id, db_name);
             return successResponse(i18n.t(`lang.auth.tanant.role.create`));
         } catch (error) {
             errorResponse(error);

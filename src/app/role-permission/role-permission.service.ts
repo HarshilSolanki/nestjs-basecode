@@ -114,6 +114,22 @@ export class RolePermissionService {
         };
     }
 
+    async assignRolePermissions(permissionIds, roleId, db_name) {
+        this.rolePermissionModel = await setTanantConnection(db_name, 'RolePermission', RolePermissionSchema);
+        const rolePermissions = permissionIds.map(permission_id => ({
+            role_id: roleId,
+            permission_id: permission_id,
+        }));
+        await this.rolePermissionModel.deleteMany({ role_id: roleId });
+        const result = await this.rolePermissionModel.insertMany(rolePermissions);
+
+        return result.map(res => ({
+            id: res._id,
+            role_id: res.role_id,
+            permission_id: res.permission_id,
+        }));
+    }
+
     async getAssignRolePermission(permissionId, RoleId, db_name) {
         this.rolePermissionModel = await setTanantConnection(db_name, 'RolePermission', RolePermissionSchema);
         return await this.rolePermissionModel.findOne({ role_id: RoleId, permission_id: permissionId }).exec();
